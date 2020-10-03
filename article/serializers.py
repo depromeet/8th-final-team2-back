@@ -2,15 +2,17 @@ from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
 from rest_framework.serializers import ModelSerializer
 
-from .models import Mission
+from .models import Article
 
-class MissionSerializer(ModelSerializer):
+class ArticleSerializer(ModelSerializer):
     class Meta:
-        model = Mission
+        model = Article
         fields = [
             "id",
             "title",
-            "description",
-            "level",
+            "content",
+            "mission",
             "created_at",
         ]
+
+
