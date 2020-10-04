@@ -13,6 +13,7 @@ class ArticleSerializer(ModelSerializer):
             "content",
             "mission",
             "created_at",
+            "user",
         ]
 
 
