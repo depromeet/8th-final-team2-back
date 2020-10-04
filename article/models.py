@@ -2,6 +2,7 @@ from django.db import models
 from commons.models import BaseModel
 from missions.models import Mission
 from apps.user.models import User
+
 class Article(BaseModel) : 
     title = models.CharField(max_length=20)
     content = models.TextField() 
