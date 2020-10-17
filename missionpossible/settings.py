@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     # First-party
     "missions",
     "apps.user",
+    "apps.badge",
 ]
 
 MIDDLEWARE = [
