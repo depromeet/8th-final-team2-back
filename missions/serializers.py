@@ -12,4 +12,5 @@ class MissionSerializer(ModelSerializer):
             "title",
             "description",
             "level",
+            "created_at",
         ]
