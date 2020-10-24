@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     # Third-party
     "rest_framework",
     "django_extensions",
+    "drf_yasg",
     # First-party
     "missions",
     "article",
