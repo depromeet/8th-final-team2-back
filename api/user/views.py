@@ -1,14 +1,26 @@
 from rest_framework.generics import GenericAPIView
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from drf_yasg.utils import swagger_auto_schema
 
-from utils.permission import IsOwner
 from . import serializers
 
 
-class UserAPIView(GenericAPIView):
-    permission_classes = [IsOwner]
-    serializer_class = serializers.UserSerializer
+class SocialAPIView(GenericAPIView):
+    serializer_class = serializers.SocialSerializer
+    permission_classes = [AllowAny]
 
-    def get(self, request, *args, **kwargs):
-        serializer = self.get_serializer(instance=request.user)
+    @swagger_auto_schema(
+        operation_summary="소설 로그인",
+        operation_description="""
+        소셜 로그인 API
+        ---
+        """
+    )
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        serializer.save()
+
         return Response(serializer.data)
