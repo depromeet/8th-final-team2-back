@@ -11,7 +11,7 @@ schema_view = get_schema_view(
         description="디프만 파이널 프로젝트",
     ),
     public=True,
-    permission_classes=(permissions.IsAuthenticated,),
+    permission_classes=(permissions.AllowAny,),
 )
 
 urlpatterns = [

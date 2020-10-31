@@ -1,3 +1,4 @@
+from django.contrib.auth import authenticate
 from rest_framework import serializers
 
 from apps.user.models import User
@@ -30,4 +31,28 @@ class SocialSerializer(serializers.Serializer):
     provider = serializers.ChoiceField(label="플랫폼", choices=Provider.choices)
 
     def save(self):
-        pass
+        if Provider.GOOGLE:
+            pass
+        elif Provider.KAKAO:
+            pass
+
+
+class LoginSerializer(serializers.Serializer):
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
+    username = serializers.CharField(write_only=True)
+    password = serializers.CharField(write_only=True)
+
+    def validate(self, attrs):
+        username = attrs.get("username")
+        password = attrs.get("password")
+
+        if not User.objects.filter(username=username).exists():
+            raise serializers.ValidationError("User is not existed")
+
+        user = authenticate(username=username, password=password)
+        if user is None:
+            raise serializers.ValidationError("Check username and password")
+
+        attrs["user"] = user
+
+        return attrs

@@ -24,3 +24,15 @@ class SocialAPIView(GenericAPIView):
         serializer.save()
 
         return Response(serializer.data)
+
+
+class LoginAPIView(GenericAPIView):
+    serializer_class = serializers.LoginSerializer
+    permission_classes = [AllowAny]
+
+    @swagger_auto_schema(operation_summary="일반 로그인", operation_description="""
+        로그인 API
+        ---
+    """)
+    def post(self, request, *args, **kwargs):
+        return Response()
