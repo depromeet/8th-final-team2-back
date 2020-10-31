@@ -1,5 +1,6 @@
 from django.db import models
-from commons.models import BaseModel
+
+from utils.model import BaseModel
 from apps.mission.models import Mission
 from apps.user.models import User
 

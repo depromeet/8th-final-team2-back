@@ -1,5 +1,6 @@
 from django.contrib.auth import authenticate
 from rest_framework import serializers
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.user.models import User
 from apps.user.enums import Provider
@@ -13,7 +14,7 @@ class ProfileIconSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    profile_icons = ProfileIconSerializer(many=True)
+    profile_icons = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -23,6 +24,11 @@ class UserSerializer(serializers.ModelSerializer):
             "image",
             "profile_icons"
         ]
+
+    def get_profile_icons(self, obj):
+        serializer = ProfileIconSerializer(
+            instance=obj.userprofileicon_set.all(), many=True)
+        return serializer.data
 
 
 class SocialSerializer(serializers.Serializer):
@@ -38,7 +44,10 @@ class SocialSerializer(serializers.Serializer):
 
 
 class LoginSerializer(serializers.Serializer):
-    user = serializers.PrimaryKeyRelatedField(read_only=True)
+    access_token = serializers.CharField(read_only=True)
+    refresh_token = serializers.CharField(read_only=True)
+    user = UserSerializer(read_only=True)
+
     username = serializers.CharField(write_only=True)
     password = serializers.CharField(write_only=True)
 
@@ -54,5 +63,9 @@ class LoginSerializer(serializers.Serializer):
             raise serializers.ValidationError("Check username and password")
 
         attrs["user"] = user
+
+        refresh = RefreshToken.for_user(user)
+        attrs["access_token"] = str(refresh.access_token)
+        attrs["refresh_token"] = str(refresh)
 
         return attrs
