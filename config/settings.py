@@ -104,6 +104,17 @@ REST_FRAMEWORK = {
     ),
 }
 
+SWAGGER_SETTINGS = {
+    "SECURITY_DEFINITIONS": {
+        "Basic": {"type": "basic"},
+        "Bearer": {"type": "apiKey", "name": "Authorization", "in": "header"},
+    },
+    "DEFAULT_AUTO_SCHEMA_CLASS": "utils.inspector.CustomAutoSchema",
+    "PERSIST_AUTH": True,
+    "LOGIN_URL": "/admin/login",
+    "LOGOUT_URL": "/admin/logout",
+}
+
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=365),

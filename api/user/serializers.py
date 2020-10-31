@@ -32,9 +32,8 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class SocialSerializer(serializers.Serializer):
-    authorization_code = serializers.CharField(
-        label="인증코드", write_only=True, help_text="각 플랫폼에서 OAuth로 발급받은 AuthorizationCode를 넣어주세요")
-    provider = serializers.ChoiceField(label="플랫폼", choices=Provider.choices)
+    authorization_code = serializers.CharField(write_only=True)
+    provider = serializers.ChoiceField(choices=Provider.choices)
 
     def save(self):
         if Provider.GOOGLE:
