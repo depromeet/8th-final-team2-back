@@ -23,8 +23,8 @@ INSTALLED_APPS = [
     "django_extensions",
     "drf_yasg",
     # First-party
-    "missions",
-    "article",
+    "apps.mission",
+    "apps.article",
     "apps.user",
     "apps.badge",
 ]
