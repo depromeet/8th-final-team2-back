@@ -48,7 +48,7 @@ class ArticleViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         permission_classes = self.permission_classes
         if self.action == "create":
-            permission_classes = [IsAuthenticated]
+            permission_classes = [AllowAny]
         return [permission() for permission in permission_classes]
 
 

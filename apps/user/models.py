@@ -13,7 +13,7 @@ class User(AbstractBaseUser):
     uid = models.CharField("UID", max_length=255, null=True, blank=True)
     nickname = models.CharField("닉네임", max_length=100, null=True, blank=True)
     image = models.ImageField(
-        "이미지", upload_to=path_user_image, null=True, blank=True)
+        "이미지", upload_to=path_user_image, null=True, blank=True, default="upload/media/test.jpg")
 
     is_active = models.BooleanField('활성여부', default=True)
     is_admin = models.BooleanField("관리자여부", default=False)
