@@ -4,7 +4,6 @@ from api.mission.serializers import MissionSerializer
 from apps.article.models import Article, Comment, MediaContent, ArticleLike
 from apps.user.models import User
 from rest_framework import serializers
-from rest_framework.fields import SerializerMethodField
 
 
 class MediaContentSerializer(ModelSerializer):
@@ -40,24 +39,22 @@ class ArticleSerializer(ModelSerializer):
             "user",
         ]
 
+
 class ArticleCommentSerializer(ModelSerializer):
     user = serializers.SlugRelatedField(read_only=True, slug_field="username")
     user_profile = serializers.SerializerMethodField()
     mission = MissionSerializer(read_only=True)
 
     def get_user_profile(self, obj):
-        return obj.user.image
+        user = obj.user
+        if user:
+            return user.get_absolute_url
+        return ""
 
     class Meta:
         model = Comment
-        fields = [
-            "id",
-            "article",
-            "user",
-            "content",
-            "user_profile",
-            "mission"
-        ]
+        fields = ["id", "article", "user", "content", "user_profile", "mission"]
+
 
 class CommentSerializer(ModelSerializer):
     class Meta:
@@ -69,10 +66,8 @@ class CommentSerializer(ModelSerializer):
             "content",
         ]
 
+
 class CommentCreateSerializer(ModelSerializer):
-
-    # user = serializers.HiddenField(default=serializers.CurrentUserDefault())
-
     class Meta:
         model = Comment
         fields = ["id", "article", "user", "content"]
@@ -86,6 +81,7 @@ class ArticleLikeSerializer(ModelSerializer):
             "article",
             "user",
         ]
+
 
 class ArticleWithCommentSerializer(ModelSerializer):
     media_contents = MediaContentSerializer(many=True, read_only=True)
@@ -105,13 +101,12 @@ class ArticleWithCommentSerializer(ModelSerializer):
             "comments",
             "created_at",
             "like_users",
-            "mission"
+            "mission",
         ]
 
 
 class ArticleCreateSerializer(ModelSerializer):
     file_ids = serializers.ListField(child=serializers.IntegerField(), write_only=True)
-    # user = serializers.HiddenField(default=serializers.CurrentUserDefault())
     media_contents = MediaContentSerializer(many=True, read_only=True)
 
     class Meta:
@@ -148,7 +143,6 @@ class ArticleWithCountSerializer(ModelSerializer):
 
     def get_like_count(self, obj):
         return obj.like_users.count()
-
 
     class Meta:
         model = Article

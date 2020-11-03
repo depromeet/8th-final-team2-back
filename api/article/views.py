@@ -1,49 +1,33 @@
-from rest_framework import status, viewsets
-from rest_framework.generics import get_object_or_404
 from django.http import HttpResponse
 from django.db.models import Count
-
-from rest_framework import status, viewsets
+from rest_framework.viewsets import ModelViewSet
 from rest_framework.generics import get_object_or_404
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny
+from drf_yasg.utils import swagger_auto_schema
 
 from . import serializers
 from apps.article.models import Article, ArticleLike, Comment, MediaContent
-from api.article.serializers import (
-    ArticleCreateSerializer,
-    ArticleLikeSerializer,
-    ArticleSerializer,
-    ArticleWithCommentSerializer,
-    ArticleWithCountSerializer,
-    CommentCreateSerializer,
-    CommentSerializer,
-    MediaContentSerializer,
-)
 
 
-class ArticleViewSet(viewsets.ModelViewSet):
+class ArticleViewSet(ModelViewSet):
     queryset = Article.objects.all()
     serializer_class = serializers.ArticleSerializer
     permission_classes = [AllowAny]
-    queryset = Article.objects.all()
-    serializer_class = ArticleSerializer
 
     def get_queryset(self):
         request = self.request
-        self.queryset = self.queryset.annotate(like_count=Count('like_users'))
-
+        self.queryset = self.queryset.annotate(like_count=Count("like_users"))
 
         return self.queryset
 
-
     def get_serializer_class(self):
         if self.action == "create":
-            return ArticleCreateSerializer
+            return serializers.ArticleCreateSerializer
         if self.action == "retrieve":
-            return ArticleWithCommentSerializer
+            return serializers.ArticleWithCommentSerializer
         if self.action == "list":
-            return ArticleWithCountSerializer
-        return ArticleSerializer
+            return serializers.ArticleWithCountSerializer
+        return serializers.ArticleSerializer
 
     def get_permissions(self):
         permission_classes = self.permission_classes
@@ -51,17 +35,25 @@ class ArticleViewSet(viewsets.ModelViewSet):
             permission_classes = [AllowAny]
         return [permission() for permission in permission_classes]
 
+    @swagger_auto_schema(
+        operation_summary="게시글 리스트",
+        operation_description="""
+        게시글 리스트 API
+        ---
+        """
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
 
-
-class MediaContentViewSet(viewsets.ModelViewSet):
+class MediaContentViewSet(ModelViewSet):
     queryset = MediaContent.objects.all()
-    serializer_class = MediaContentSerializer
+    serializer_class = serializers.MediaContentSerializer
 
 
-class ArticleLikeViewSet(viewsets.ModelViewSet):
+class ArticleLikeViewSet(ModelViewSet):
     queryset = ArticleLike.objects.all()
-    serializer_class = ArticleLikeSerializer
+    serializer_class = serializers.ArticleLikeSerializer
 
     def create(self, request):
         article_id = request.data["article"]
@@ -76,11 +68,11 @@ class ArticleLikeViewSet(viewsets.ModelViewSet):
         return HttpResponse(status=200)
 
 
-class CommentViewSet(viewsets.ModelViewSet):
+class CommentViewSet(ModelViewSet):
     queryset = Comment.objects.all()
-    serializer_class = CommentSerializer
+    serializer_class = serializers.CommentSerializer
 
     def get_serializer_class(self):
         if self.action == "create":
-            return CommentCreateSerializer
-        return CommentSerializer
+            return serializers.CommentCreateSerializer
+        return serializers.CommentSerializer
