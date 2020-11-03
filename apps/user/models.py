@@ -9,17 +9,17 @@ from .images import path_user_image
 class User(AbstractBaseUser):
     username = models.CharField("아이디", max_length=100, unique=True)
     provider = models.CharField(
-        "플랫폼", max_length=20, choices=Provider.choices, default=Provider.DEFAULT)
+        "플랫폼", max_length=20, choices=Provider.choices, default=Provider.DEFAULT
+    )
     uid = models.CharField("UID", max_length=255, null=True, blank=True)
     nickname = models.CharField("닉네임", max_length=100, null=True, blank=True)
-    image = models.ImageField(
-        "이미지", upload_to=path_user_image, null=True, blank=True)
+    image = models.ImageField("이미지", upload_to=path_user_image, null=True, blank=True)
 
-    is_active = models.BooleanField('활성여부', default=True)
+    is_active = models.BooleanField("활성여부", default=True)
     is_admin = models.BooleanField("관리자여부", default=False)
     date_join = models.DateTimeField("가입일", auto_now_add=True)
 
-    USERNAME_FIELD = 'username'
+    USERNAME_FIELD = "username"
 
     objects = UserManager()
 
@@ -37,3 +37,9 @@ class User(AbstractBaseUser):
 
     def has_module_perms(self, app_label):
         return self.is_active
+
+    @property
+    def get_absolute_url(self):
+        if not self.image:
+            return None
+        return self.image.url

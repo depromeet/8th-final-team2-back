@@ -1,5 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
@@ -7,7 +9,7 @@ from drf_yasg import openapi
 schema_view = get_schema_view(
     openapi.Info(
         title="MissionPossible API",
-        default_version='v1',
+        default_version="v1",
         description="디프만 파이널 프로젝트",
     ),
     public=True,
@@ -15,8 +17,13 @@ schema_view = get_schema_view(
 )
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path("admin/", admin.site.urls),
     path("api/", include(("api.urls", "api"), namespace="api")),
-    path("swagger/", schema_view.with_ui('swagger',
-                                         cache_timeout=0), name='schema-swagger-ui'),
+    path(
+        "swagger/",
+        schema_view.with_ui("swagger", cache_timeout=0),
+        name="schema-swagger-ui",
+    ),
 ]
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
