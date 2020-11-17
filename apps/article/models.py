@@ -1,4 +1,6 @@
 from django.db import models
+from os import path
+from uuid import uuid1
 
 from utils.model import BaseModel
 from apps.mission.models import Mission
@@ -9,10 +11,26 @@ class Article(BaseModel):
     title = models.CharField(max_length=20)
     content = models.TextField()
     mission = models.ForeignKey(
-        Mission, related_name="mission", on_delete=models.DO_NOTHING)
+        Mission, related_name="mission", on_delete=models.DO_NOTHING
+    )
     user = models.ForeignKey(
         User, related_name="article_user", on_delete=models.DO_NOTHING
     )
+    media_contents = models.ManyToManyField("MediaContent", blank=True)
+    like_users = models.ManyToManyField(
+        User,
+        through="ArticleLike",
+        related_name="like_users",
+    )
+
+
+def upload_to(instance, filename):
+    _, ext = path.splitext(filename)
+    return f"{uuid1()}{ext})"
+
+
+class MediaContent(BaseModel):
+    file = models.ImageField(null=False, blank=False, upload_to=upload_to)
 
 
 class ArticleLike(BaseModel):
