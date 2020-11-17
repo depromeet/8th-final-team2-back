@@ -1,8 +1,8 @@
 from rest_framework.serializers import ModelSerializer
 
+from api.user.serializers import UserSerializer
 from api.mission.serializers import MissionSerializer
 from apps.article.models import Article, Comment, MediaContent, ArticleLike
-from apps.user.models import User
 from rest_framework import serializers
 
 
@@ -12,15 +12,6 @@ class MediaContentSerializer(ModelSerializer):
         fields = [
             "id",
             "file",
-        ]
-
-
-class UserSerializer(ModelSerializer):
-    class Meta:
-        model = User
-        fields = [
-            "nickname",
-            "image",
         ]
 
 
