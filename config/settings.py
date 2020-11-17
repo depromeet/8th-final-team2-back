@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from datetime import timedelta
 
@@ -5,9 +6,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'tx!0a%ep8ak@4lar!^v@r%v-)dus6$ii=099pwo!q8o0z%$enz'
 
-DEBUG = True
+DEBUG = os.environ.get("PROJECT_ENV") != "production"
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -23,6 +24,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "django_extensions",
     "drf_yasg",
+    "corsheaders",
     # First-party
     "apps.mission",
     "apps.article",
@@ -33,6 +35,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -70,7 +73,19 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+if not DEBUG:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "HOST": os.environ.get("DATABASE_HOST"),
+            "USER": os.environ.get("DATABASE_USER"),
+            "PASSWORD": os.environ.get("DATABASE_PASSWORD"),
+            "NAME": os.environ.get("DATABASE_NAME"),
+        }
+    }
 
+
+CORS_ALLOW_ALL_ORIGINS = True
 
 AUTH_USER_MODEL = 'user.User'
 AUTH_PASSWORD_VALIDATORS = [

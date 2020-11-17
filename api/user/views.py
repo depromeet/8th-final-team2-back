@@ -37,7 +37,7 @@ class LoginAPIView(GenericAPIView):
         앱에서는 사용하는 것이 아니고 테스트 목적으로 만들어졌으며,
         응답은 소셜 로그인과 동일합니다.
         """,
-        request_body=schemas.LoginRequestSerializer,
+        request_body=schemas.login_request,
         responses={status.HTTP_200_OK: schemas.login_response}
     )
     def post(self, request, *args, **kwargs):

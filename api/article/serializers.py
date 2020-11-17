@@ -1,17 +1,9 @@
 from rest_framework.serializers import ModelSerializer
 
 from api.mission.serializers import MissionSerializer
+from api.user.serializers import UserSerializer
 from apps.article.models import Article
 from apps.user.models import User
-
-
-class UserSerializer(ModelSerializer):
-    class Meta:
-        model = User
-        fields = [
-            "nickname",
-            "image",
-        ]
 
 
 class ArticleSerializer(ModelSerializer):
