@@ -99,23 +99,25 @@ class ProfileSerializer(serializers.Serializer):
     nickname = serializers.CharField()
     image = serializers.ImageField(read_only=True)
     profile_icons = serializers.SerializerMethodField(read_only=True)
-    complete_mission_count = serializers.IntegerField(read_only=True)
-    post_count = serializers.IntegerField(read_only=True)
-    experience = serializers.IntegerField(read_only=True)
-    total_experience = serializers.IntegerField(read_only=True)
+    complete_mission_count = serializers.IntegerField(read_only=True, default=0)
+    post_count = serializers.IntegerField(read_only=True, default=0)
+    experience = serializers.IntegerField(read_only=True, default=0)
+    total_experience = serializers.IntegerField(read_only=True, default=0)
 
     def get_profile_icons(self, obj):
+        request = self.context["request"]
         user_data = obj.userprofileicon_set.all().values("id", "acquired_date")
         icon_data = [
             {
                 "id": icon.id,
                 "name": icon.name,
-                "image": icon.image.url,
-                "active_image": icon.active_image.url,
+                "image": request.build_absolute_uri(icon.image.url),
+                "active_image": request.build_absolute_uri(icon.active_image.url),
                 "is_active": False,
             }
             for icon in (ProfileIcon.objects.all().order_by("priority"))
         ]
+        print(icon_data)
 
         data = []
         for icon in icon_data:
@@ -141,3 +143,15 @@ class ProfileSerializer(serializers.Serializer):
         instance = self.instance
         instance.nickname = nickname
         instance.save()
+
+
+class ProfileImageSerializer(serializers.Serializer):
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    image = serializers.FileField()
+
+    def save(self):
+        user = self.validated_data["user"]
+        image = self.validated_data["image"]
+
+        user.image = image
+        user.save()

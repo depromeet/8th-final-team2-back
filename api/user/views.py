@@ -1,6 +1,7 @@
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import status
 from drf_yasg.utils import swagger_auto_schema
 
@@ -90,3 +91,23 @@ class ProfileAPIView(GenericAPIView):
         serializer.save()
 
         return Response(serializer.data)
+
+
+class ProfileImageAPIView(GenericAPIView):
+    serializer_class = serializers.ProfileImageSerializer
+    parser_classes = [MultiPartParser, FormParser]
+
+    @swagger_auto_schema(
+        operation_summary="프로필 이미지 수정",
+        operation_description="""
+        프로필 이미지 수정 API
+        ---
+        """,
+        request_body=schemas.profile_image_request,
+    )
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response()

@@ -71,3 +71,10 @@ class ProfileRequest(Serializer):
 
 
 profile_request = ProfileRequest
+
+
+class ProfileImageRequest(Serializer):
+    image = serializers.FileField(label="이미지")
+
+
+profile_image_request = ProfileImageRequest
