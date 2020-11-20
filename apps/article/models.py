@@ -48,3 +48,12 @@ class Comment(BaseModel):
     user = models.ForeignKey(
         User, related_name="comment_user", on_delete=models.DO_NOTHING
     )
+
+class ReComment(BaseModel):
+    comment = models.ForeignKey(
+        Comment, related_name="re_comments", on_delete=models.DO_NOTHING
+    )
+    content = models.CharField(max_length=100)
+    user = models.ForeignKey(
+        User, related_name="re_comment_user", on_delete=models.DO_NOTHING
+    )

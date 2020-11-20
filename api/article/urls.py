@@ -12,6 +12,7 @@ from api.article.views import (
     ArticleViewSet,
     CommentViewSet,
     MediaContentViewSet,
+    ReCommentViewSet,
 )
 from django.urls import path
 
@@ -27,4 +28,5 @@ urlpatterns = [
     path("like/", ArticleLikeViewSet.as_view({"get": "list", "post": "create"})),
     # path("comment", CommentViewSet.as_view({"get": "list", "post": "create"})),
     path("comment/", CommentViewSet.as_view({'get': 'list', "post": "create"})),
+    path("recomment/", ReCommentViewSet.as_view({'get': 'list', "post": "create"})),
 ]

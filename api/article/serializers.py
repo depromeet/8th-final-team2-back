@@ -2,7 +2,7 @@ from rest_framework.serializers import ModelSerializer
 
 from api.user.serializers import UserSerializer
 from api.mission.serializers import MissionSerializer
-from apps.article.models import Article, Comment, MediaContent, ArticleLike
+from apps.article.models import Article, Comment, MediaContent, ArticleLike, ReComment
 from rest_framework import serializers
 
 
@@ -31,22 +31,6 @@ class ArticleSerializer(ModelSerializer):
         ]
 
 
-class ArticleCommentSerializer(ModelSerializer):
-    user = serializers.SlugRelatedField(read_only=True, slug_field="username")
-    user_profile = serializers.SerializerMethodField()
-    mission = MissionSerializer(read_only=True)
-
-    def get_user_profile(self, obj):
-        user = obj.user
-        if user:
-            return user.get_absolute_url
-        return ""
-
-    class Meta:
-        model = Comment
-        fields = ["id", "article", "user", "content", "user_profile", "mission"]
-
-
 class CommentSerializer(ModelSerializer):
     class Meta:
         model = Comment
@@ -57,11 +41,71 @@ class CommentSerializer(ModelSerializer):
             "content",
         ]
 
-
 class CommentCreateSerializer(ModelSerializer):
     class Meta:
         model = Comment
         fields = ["id", "article", "user", "content"]
+
+
+
+class ReCommentSerializer(ModelSerializer) :
+    class Meta :
+        model = ReComment
+        fields= [
+            "id",
+            "comment",
+            "user",
+            "content",
+        ]
+        
+
+class ReCommentCreateSerializer(ModelSerializer) :
+    class Meta :
+        model = ReComment
+        fields= [
+            "id",
+            "comment",
+            "user",
+            "content",
+        ]
+
+class ArticleReCommentSerializer(ModelSerializer):
+    user = serializers.SlugRelatedField(read_only=True, slug_field="username")
+    user_profile = serializers.SerializerMethodField()
+    
+    def get_user_profile(self, obj):
+        user = obj.user
+        if user:
+            return user.get_absolute_url
+        return ""
+
+    class Meta : 
+        model = ReComment
+        fields = ["id","comment","user","content","user_profile"]
+
+class ArticleCommentSerializer(ModelSerializer):
+    user = serializers.SlugRelatedField(read_only=True, slug_field="username")
+    user_profile = serializers.SerializerMethodField()
+    mission = MissionSerializer(read_only=True)
+    re_comments = ArticleReCommentSerializer(read_only=True, many=True)
+    
+    def get_user_profile(self, obj):
+        user = obj.user
+        if user:
+            return user.get_absolute_url
+        return ""
+
+    class Meta:
+        model = Comment
+        fields = [
+            "id",
+            "article", 
+            "user", 
+            "content", 
+            "user_profile",
+            "mission",
+            "re_comments",
+            ]
 
 
 class ArticleLikeSerializer(ModelSerializer):

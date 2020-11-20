@@ -4,15 +4,17 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import AllowAny
 from drf_yasg.utils import swagger_auto_schema
-
+from django.core.paginator import Paginator
+ 
 from . import serializers
-from apps.article.models import Article, ArticleLike, Comment, MediaContent
-
+from apps.article.models import Article, ArticleLike, Comment, MediaContent, ReComment
+from . import pagination
 
 class ArticleViewSet(ModelViewSet):
-    queryset = Article.objects.all()
+    queryset = Article.objects.all().order_by('-created_at')
     serializer_class = serializers.ArticleSerializer
     permission_classes = [AllowAny]
+    pagination_class = pagination.ArticlePagination
 
     def get_queryset(self):
         request = self.request
@@ -76,3 +78,13 @@ class CommentViewSet(ModelViewSet):
         if self.action == "create":
             return serializers.CommentCreateSerializer
         return serializers.CommentSerializer
+
+
+class ReCommentViewSet(ModelViewSet):
+    queryset = ReComment.objects.all()
+    serializer_class = serializers.ReCommentSerializer
+
+    def get_serializer_class(self):
+        if self.action == "create":
+            return serializers.ReCommentCreateSerializer
+        return serializers.ReCommentSerializer
