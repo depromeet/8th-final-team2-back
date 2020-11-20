@@ -1,3 +1,13 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import ProfileIcon, UserProfileIcon
+
+
+@admin.register(ProfileIcon)
+class ProfileIconAdmin(admin.ModelAdmin):
+    list_display = ["name", "priority"]
+
+
+@admin.register(UserProfileIcon)
+class UserProfileIconAdmin(admin.ModelAdmin):
+    pass

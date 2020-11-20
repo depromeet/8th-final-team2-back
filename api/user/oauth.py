@@ -1,8 +1,7 @@
 import requests
-from urllib.parse import urlparse
-from django.core.files.base import ContentFile
-import google.oauth2.credentials
-import google_auth_oauthlib.flow
+from django.conf import settings
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
 
 from apps.user.enums import Provider
 from apps.user.models import User
@@ -23,12 +22,16 @@ class Kakao(OAuthBase):
         res = requests.post(
             url,
             {
-                "property_keys": ["properties.nickname", "properties.profile_image", "kakao_account.profile"]
+                "property_keys": [
+                    "properties.nickname",
+                    "properties.profile_image",
+                    "kakao_account.profile",
+                ]
             },
             headers={
                 "Authorization": f"Bearer {self.token}",
-                "Content-type": "application/x-www-form-urlencoded;charset=utf-8"
-            }
+                "Content-type": "application/x-www-form-urlencoded;charset=utf-8",
+            },
         )
 
         if res.status_code != 200:
@@ -37,55 +40,36 @@ class Kakao(OAuthBase):
         data = res.json()
         kakao_uid = data.get("id")
 
-        u, created = User.objects.get_or_create(
-            provider=Provider.KAKAO, uid=kakao_uid)
+        u, created = User.objects.get_or_create(provider=Provider.KAKAO, uid=kakao_uid)
 
         if created:
             u.username = get_random_alphanumeric_string(10, 5)
-
-            properties = data.get("properties")
-            if properties:
-                nickname = properties.get("nickname")
-                profile_image = properties.get("profile_image")
-
-                if nickname:
-                    u.nickname = nickname
-                if profile_image:
-                    image_name = urlparse(profile_image).path.split('/')[-1]
-                    image_response = requests.get(profile_image)
-
-                    if image_response.status_code == 200:
-                        u.image.save(image_name, ContentFile(
-                            image_response.content), save=True)
             u.save()
 
         return u
 
 
 class Google(OAuthBase):
-    def get_user(self):
-        flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
-            "",
-            scopes=["openid", "'https://www.googleapis.com/auth/userinfo.profile'"],
-            state='12345678910',
-        )
-        flow.redirect_uri = 'http://127.0.0.1:8000/'
-        authorization_url, state = flow.authorization_url(
-            access_type='offline',
-            include_granted_scopes='true')
+    def __init__(self, token):
+        super().__init__(token)
 
-        if res.status_code != 200:
+        self.clientId = settings.GOOGLE_CLIENT_ID
+
+    def get_user(self):
+        try:
+            id_info = id_token.verify_oauth2_token(
+                self.token, google_requests.Request(), self.clientId
+            )
+        except ValueError:
             return None
 
-        data = res.json()
-        google_uid = data.get("id")
-
+        google_uid = id_info.get("sub", None)
         u, created = User.objects.get_or_create(
-            provider=Provider.GOOGLE, uid=google_uid)
+            provider=Provider.GOOGLE, uid=google_uid
+        )
 
         if created:
             u.username = get_random_alphanumeric_string(10, 5)
-
             u.save()
 
         return u

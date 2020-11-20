@@ -43,3 +43,15 @@ class User(AbstractBaseUser):
         if not self.image:
             return None
         return self.image.url
+
+    @property
+    def has_nickname(self):
+        if self.nickname:
+            return True
+        return False
+
+    @property
+    def has_image(self):
+        if self.image:
+            return True
+        return False
