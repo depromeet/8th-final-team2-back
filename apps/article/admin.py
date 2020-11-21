@@ -1,10 +1,10 @@
 from django.contrib import admin
 
-from .models import Article, Comment, MediaContent
+from .models import Post, Comment, PostImage
 
 
-@admin.register(Article)
-class ArticleAdmin(admin.ModelAdmin):
+@admin.register(Post)
+class PostAdmin(admin.ModelAdmin):
     pass
 
 
@@ -13,6 +13,6 @@ class CommentAdmin(admin.ModelAdmin):
     pass
 
 
-@admin.register(MediaContent)
-class MediaContentAdmin(admin.ModelAdmin):
+@admin.register(PostImage)
+class PostImageAdmin(admin.ModelAdmin):
     pass

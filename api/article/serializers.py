@@ -1,14 +1,14 @@
+from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 
 from api.user.serializers import UserSerializer
 from api.mission.serializers import MissionSerializer
-from apps.article.models import Article, Comment, MediaContent, ArticleLike, ReComment
-from rest_framework import serializers
+from apps.article.models import Post, Comment, PostImage, PostLike
 
 
 class MediaContentSerializer(ModelSerializer):
     class Meta:
-        model = MediaContent
+        model = PostImage
         fields = [
             "id",
             "file",
@@ -20,7 +20,7 @@ class ArticleSerializer(ModelSerializer):
     user = UserSerializer(read_only=True)
 
     class Meta:
-        model = Article
+        model = Post
         fields = [
             "id",
             "title",
@@ -41,54 +41,56 @@ class CommentSerializer(ModelSerializer):
             "content",
         ]
 
+
 class CommentCreateSerializer(ModelSerializer):
     class Meta:
         model = Comment
         fields = ["id", "article", "user", "content"]
 
 
-
-class ReCommentSerializer(ModelSerializer) :
-    class Meta :
+class ReCommentSerializer(ModelSerializer):
+    class Meta:
         model = ReComment
-        fields= [
+        fields = [
             "id",
             "comment",
             "user",
             "content",
         ]
-        
 
-class ReCommentCreateSerializer(ModelSerializer) :
-    class Meta :
+
+class ReCommentCreateSerializer(ModelSerializer):
+    class Meta:
         model = ReComment
-        fields= [
+        fields = [
             "id",
             "comment",
             "user",
             "content",
         ]
+
 
 class ArticleReCommentSerializer(ModelSerializer):
     user = serializers.SlugRelatedField(read_only=True, slug_field="username")
     user_profile = serializers.SerializerMethodField()
-    
+
     def get_user_profile(self, obj):
         user = obj.user
         if user:
             return user.get_absolute_url
         return ""
 
-    class Meta : 
+    class Meta:
         model = ReComment
-        fields = ["id","comment","user","content","user_profile"]
+        fields = ["id", "comment", "user", "content", "user_profile"]
+
 
 class ArticleCommentSerializer(ModelSerializer):
     user = serializers.SlugRelatedField(read_only=True, slug_field="username")
     user_profile = serializers.SerializerMethodField()
     mission = MissionSerializer(read_only=True)
     re_comments = ArticleReCommentSerializer(read_only=True, many=True)
-    
+
     def get_user_profile(self, obj):
         user = obj.user
         if user:
@@ -99,18 +101,18 @@ class ArticleCommentSerializer(ModelSerializer):
         model = Comment
         fields = [
             "id",
-            "article", 
-            "user", 
-            "content", 
+            "article",
+            "user",
+            "content",
             "user_profile",
             "mission",
             "re_comments",
-            ]
+        ]
 
 
 class ArticleLikeSerializer(ModelSerializer):
     class Meta:
-        model = ArticleLike
+        model = PostLike
         fields = [
             "id",
             "article",
@@ -126,7 +128,7 @@ class ArticleWithCommentSerializer(ModelSerializer):
     user = UserSerializer(read_only=True)
 
     class Meta:
-        model = Article
+        model = Post
         fields = [
             "id",
             "title",
@@ -145,7 +147,7 @@ class ArticleCreateSerializer(ModelSerializer):
     media_contents = MediaContentSerializer(many=True, read_only=True)
 
     class Meta:
-        model = Article
+        model = Post
         fields = [
             "id",
             "title",
@@ -160,7 +162,7 @@ class ArticleCreateSerializer(ModelSerializer):
         ids = validated_data.pop("file_ids")
         instance = super().create(validated_data)
 
-        contents = MediaContent.objects.filter(id__in=ids)
+        contents = PostImage.objects.filter(id__in=ids)
         instance.media_contents.add(*contents)
 
         return instance
@@ -180,7 +182,7 @@ class ArticleWithCountSerializer(ModelSerializer):
         return obj.like_users.count()
 
     class Meta:
-        model = Article
+        model = Post
         fields = [
             "id",
             "title",

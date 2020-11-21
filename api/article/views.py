@@ -4,14 +4,13 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import AllowAny
 from drf_yasg.utils import swagger_auto_schema
-from django.core.paginator import Paginator
- 
-from . import serializers
-from apps.article.models import Article, ArticleLike, Comment, MediaContent, ReComment
-from . import pagination
+
+from apps.article.models import Post, PostLike, Comment, PostImage
+from . import pagination, serializers
+
 
 class ArticleViewSet(ModelViewSet):
-    queryset = Article.objects.all().order_by('-created_at')
+    queryset = Post.objects.all().order_by("-created_at")
     serializer_class = serializers.ArticleSerializer
     permission_classes = [AllowAny]
     pagination_class = pagination.ArticlePagination
@@ -42,25 +41,25 @@ class ArticleViewSet(ModelViewSet):
         operation_description="""
         게시글 리스트 API
         ---
-        """
+        """,
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
 
 class MediaContentViewSet(ModelViewSet):
-    queryset = MediaContent.objects.all()
+    queryset = PostImage.objects.all()
     serializer_class = serializers.MediaContentSerializer
 
 
 class ArticleLikeViewSet(ModelViewSet):
-    queryset = ArticleLike.objects.all()
+    queryset = PostLike.objects.all()
     serializer_class = serializers.ArticleLikeSerializer
 
     def create(self, request):
         article_id = request.data["article"]
         user = request.data["user"]
-        article = get_object_or_404(Article, pk=article_id)
+        article = get_object_or_404(Post, pk=article_id)
 
         if article.like_users.filter(id=user):
             article.like_users.remove(user)
