@@ -12,7 +12,7 @@ class Post(BaseModel):
 
     content = models.TextField("내용", null=True, blank=True)
     like = models.ManyToManyField(
-        "user.User", through="article.PostLike", related_name="like_users"
+        "user.User", through="post.PostLike", related_name="like_users"
     )
 
     class Meta:
@@ -23,7 +23,7 @@ class Post(BaseModel):
 
 class PostImage(BaseModel):
     post = models.ForeignKey(
-        "article.Post", on_delete=models.CASCADE, null=True, blank=True
+        "post.Post", on_delete=models.CASCADE, null=True, blank=True
     )
     image = models.ImageField("이미지", upload_to=path_post_image)
     priority = models.IntegerField("우선순위", default=0)
@@ -52,7 +52,7 @@ def pre_save_post_image(sender, instance, **kwargs):
 
 
 class PostLike(BaseModel):
-    article = models.ForeignKey("article.Post", on_delete=models.CASCADE)
+    post = models.ForeignKey("post.Post", on_delete=models.CASCADE)
     user = models.ForeignKey("user.User", on_delete=models.CASCADE)
 
     class Meta:
@@ -62,7 +62,7 @@ class PostLike(BaseModel):
 
 
 class Comment(BaseModel):
-    post = models.ForeignKey("article.Post", on_delete=models.CASCADE)
+    post = models.ForeignKey("post.Post", on_delete=models.CASCADE)
     user = models.ForeignKey("user.User", on_delete=models.CASCADE)
     parent = models.ForeignKey("self", on_delete=models.CASCADE)
     content = models.CharField("내용", max_length=100)

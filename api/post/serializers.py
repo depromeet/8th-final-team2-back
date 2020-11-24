@@ -1,9 +1,9 @@
 from rest_framework import serializers
 
-from api.user.serializers import UserSerializer
 from api.mission.serializers import MissionSerializer
+from api.user.serializers import UserSerializer
+from apps.post.models import Comment, Post, PostImage, PostLike
 from apps.mission.models import Mission
-from apps.article.models import Post, Comment, PostImage, PostLike
 
 
 class UserSerializer(serializers.Serializer):
@@ -87,7 +87,7 @@ class PostLikeSerializer(serializers.Serializer):
         return attrs
 
 
-class ArticleSerializer(serializers.ModelSerializer):
+class PostSerializer(serializers.ModelSerializer):
     mission = MissionSerializer(read_only=True)
     user = UserSerializer(read_only=True)
 
@@ -119,7 +119,7 @@ class CommentCreateSerializer(serializers.ModelSerializer):
         fields = ["id", "post", "user", "content"]
 
 
-class ArticleCommentSerializer(serializers.ModelSerializer):
+class PostCommentSerializer(serializers.ModelSerializer):
     user = serializers.SlugRelatedField(read_only=True, slug_field="username")
     user_profile = serializers.SerializerMethodField()
     mission = MissionSerializer(read_only=True)
@@ -142,19 +142,19 @@ class ArticleCommentSerializer(serializers.ModelSerializer):
         ]
 
 
-class ArticleLikeSerializer(serializers.ModelSerializer):
+class PostLikeSerializer(serializers.ModelSerializer):
     class Meta:
         model = PostLike
         fields = [
             "id",
-            "article",
+            "post",
             "user",
         ]
 
 
-class ArticleWithCommentSerializer(serializers.ModelSerializer):
-    comments = ArticleCommentSerializer(many=True, read_only=True)
-    article_likes = ArticleLikeSerializer(many=True, read_only=True)
+class PostWithCommentSerializer(serializers.ModelSerializer):
+    comments = PostCommentSerializer(many=True, read_only=True)
+    post_likes = PostLikeSerializer(many=True, read_only=True)
     mission = MissionSerializer(read_only=True)
     user = UserSerializer(read_only=True)
 
@@ -163,7 +163,7 @@ class ArticleWithCommentSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "user",
-            "article_likes",
+            "post_likes",
             "comments",
             "created_at",
             "like",
@@ -171,7 +171,7 @@ class ArticleWithCommentSerializer(serializers.ModelSerializer):
         ]
 
 
-class ArticleCreateSerializer(serializers.ModelSerializer):
+class PostCreateSerializer(serializers.ModelSerializer):
     file_ids = serializers.ListField(child=serializers.IntegerField(), write_only=True)
 
     class Meta:
@@ -194,7 +194,7 @@ class ArticleCreateSerializer(serializers.ModelSerializer):
         return instance
 
 
-class ArticleWithCountSerializer(serializers.ModelSerializer):
+class PostWithCountSerializer(serializers.ModelSerializer):
     comment_count = serializers.SerializerMethodField()
     like_count = serializers.SerializerMethodField()
     user = UserSerializer(read_only=True)

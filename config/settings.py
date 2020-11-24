@@ -1,6 +1,6 @@
 import os
-from pathlib import Path
 from datetime import timedelta
+from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -22,12 +22,13 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # Third-party
     "rest_framework",
+    "django_filters",
     "django_extensions",
     "drf_yasg",
     "corsheaders",
     # First-party
     "apps.mission",
-    "apps.article",
+    "apps.post",
     "apps.user",
     "apps.badge",
 ]
@@ -122,6 +123,7 @@ AWS_S3_CUSTOM_DOMAIN = "{}.s3.amazonaws.com".format(AWS_STORAGE_BUCKET_NAME)
 AWS_DEFAULT_ACL = None
 
 REST_FRAMEWORK = {
+    "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
