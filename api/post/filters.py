@@ -6,4 +6,4 @@ from apps.post.models import Post
 class PostFilterSet(FilterSet):
     class Meta:
         model = Post
-        fields = ["mission"]
+        fields = ["mission", "user"]
