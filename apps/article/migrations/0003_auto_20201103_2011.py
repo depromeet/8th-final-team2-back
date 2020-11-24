@@ -9,18 +9,22 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('article', '0002_auto_20201101_2330'),
+        ("article", "0002_auto_20201101_2330"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='article',
-            name='like_users',
-            field=models.ManyToManyField(related_name='like_users', through='article.ArticleLike', to=settings.AUTH_USER_MODEL),
+            model_name="article",
+            name="like_users",
+            field=models.ManyToManyField(
+                related_name="like_users",
+                through="article.ArticleLike",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterField(
-            model_name='mediacontent',
-            name='file',
-            field=models.ImageField(upload_to=apps.article.models.upload_to),
+            model_name="mediacontent",
+            name="file",
+            field=models.ImageField(upload_to=apps.article.images.path_post_image),
         ),
     ]

@@ -8,8 +8,7 @@ class MissionSerializer(ModelSerializer):
         model = Mission
         fields = [
             "id",
-            "title",
-            "description",
-            "level",
+            "name",
+            "priority",
             "created_at",
         ]

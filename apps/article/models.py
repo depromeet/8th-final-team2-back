@@ -1,59 +1,73 @@
 from django.db import models
-from os import path
-from uuid import uuid1
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 
 from utils.model import BaseModel
-from apps.mission.models import Mission
-from apps.user.models import User
+from .images import path_post_image
 
 
-class Article(BaseModel):
-    title = models.CharField(max_length=20)
-    content = models.TextField()
-    mission = models.ForeignKey(
-        Mission, related_name="mission", on_delete=models.DO_NOTHING
-    )
-    user = models.ForeignKey(
-        User, related_name="article_user", on_delete=models.DO_NOTHING
-    )
-    media_contents = models.ManyToManyField("MediaContent", blank=True)
-    like_users = models.ManyToManyField(
-        User,
-        through="ArticleLike",
-        related_name="like_users",
+class Post(BaseModel):
+    mission = models.ForeignKey("mission.Mission", on_delete=models.CASCADE)
+    user = models.ForeignKey("user.User", on_delete=models.CASCADE)
+
+    content = models.TextField("내용", null=True, blank=True)
+    like = models.ManyToManyField(
+        "user.User", through="article.PostLike", related_name="like_users"
     )
 
-
-def upload_to(instance, filename):
-    _, ext = path.splitext(filename)
-    return f"{uuid1()}{ext})"
-
-
-class MediaContent(BaseModel):
-    file = models.ImageField(null=False, blank=False, upload_to=upload_to)
+    class Meta:
+        db_table = "post"
+        verbose_name = "글"
+        verbose_name_plural = "글 목록"
 
 
-class ArticleLike(BaseModel):
-    article = models.ForeignKey(Article, on_delete=models.DO_NOTHING)
-    user = models.ForeignKey(
-        User, related_name="like_user", on_delete=models.DO_NOTHING
+class PostImage(BaseModel):
+    post = models.ForeignKey(
+        "article.Post", on_delete=models.CASCADE, null=True, blank=True
     )
+    image = models.ImageField("이미지", upload_to=path_post_image)
+    priority = models.IntegerField("우선순위", default=0)
+
+    class Meta:
+        db_table = "post_image"
+        verbose_name = "글 이미지"
+        verbose_name_plural = "글 이미지 목록"
+
+
+@receiver(pre_save, sender=PostImage)
+def pre_save_post_image(sender, instance, **kwargs):
+    post_id = instance.post_id
+
+    if (
+        post_id
+        and sender.objects.exists(
+            post_id=instance.post_id, priority=instance.priority
+        ).exists()
+    ):
+        last_priority = (
+            sender.objects.filter(post_id=post_id).order_by("priority").last()
+        )
+        if last_priority:
+            instance.priority = last_priority.priority
+
+
+class PostLike(BaseModel):
+    article = models.ForeignKey("article.Post", on_delete=models.CASCADE)
+    user = models.ForeignKey("user.User", on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = "post_like"
+        verbose_name = "글 좋아요"
+        verbose_name_plural = "글 좋아요 목록"
 
 
 class Comment(BaseModel):
-    article = models.ForeignKey(
-        Article, related_name="comments", on_delete=models.DO_NOTHING
-    )
-    content = models.CharField(max_length=100)
-    user = models.ForeignKey(
-        User, related_name="comment_user", on_delete=models.DO_NOTHING
-    )
+    post = models.ForeignKey("article.Post", on_delete=models.CASCADE)
+    user = models.ForeignKey("user.User", on_delete=models.CASCADE)
+    parent = models.ForeignKey("self", on_delete=models.CASCADE)
+    content = models.CharField("내용", max_length=100)
 
-class ReComment(BaseModel):
-    comment = models.ForeignKey(
-        Comment, related_name="re_comments", on_delete=models.DO_NOTHING
-    )
-    content = models.CharField(max_length=100)
-    user = models.ForeignKey(
-        User, related_name="re_comment_user", on_delete=models.DO_NOTHING
-    )
+    class Meta:
+        db_table = "post_comment"
+        verbose_name = "댓글"
+        verbose_name_plural = "댓글 목록"
