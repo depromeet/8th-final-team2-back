@@ -1,13 +1,15 @@
 from django.db.models import Count
-from rest_framework.viewsets import ModelViewSet
-from rest_framework.generics import CreateAPIView, GenericAPIView
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.parsers import FormParser, MultiPartParser
 from drf_yasg.utils import swagger_auto_schema
+from rest_framework import status
+from rest_framework.generics import CreateAPIView, GenericAPIView
+from rest_framework.parsers import FormParser, MultiPartParser
+from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet
 
-from apps.article.models import Post, Comment
-from . import pagination, serializers, schemas
+from api.post.filters import PostFilterSet
+from apps.post.models import Comment, Post
+
+from . import pagination, schemas, serializers
 
 
 class PostViewSet(ModelViewSet):
@@ -19,11 +21,12 @@ class PostViewSet(ModelViewSet):
         .prefetch_related("postlike_set")
         .prefetch_related("comment_set")
     )
-    pagination_class = pagination.ArticlePagination
+    pagination_class = pagination.PostPagination
+    filterset_class = PostFilterSet
 
     def get_serializer_class(self):
         if self.action == "retrieve":
-            return serializers.ArticleWithCommentSerializer
+            return serializers.PostWithCommentSerializer
         elif self.action == "list":
             return serializers.PostListSerializer
         return serializers.PostSerializer
