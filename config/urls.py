@@ -8,7 +8,7 @@ from drf_yasg import openapi
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="MissionPossible API",
+        title="6pixel API",
         default_version="v1",
         description="디프만 8조 파이널 프로젝트",
     ),
