@@ -64,6 +64,7 @@ class Google(OAuthBase):
             return None
 
         google_uid = id_info.get("sub", None)
+
         u, created = User.objects.get_or_create(
             provider=Provider.GOOGLE, uid=google_uid
         )
