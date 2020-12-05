@@ -1,3 +1,4 @@
+from django.http import Http404
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -62,6 +63,14 @@ class ProfileAPIView(GenericAPIView):
             .prefetch_related("userprofileicon_set")
         )
 
+    def get_object(self):
+        queryset = self.get_queryset()
+        try:
+            obj = queryset.get()
+        except:
+            return Http404
+        return obj
+
     @swagger_auto_schema(
         operation_summary="프로필 조회",
         operation_description="""
@@ -71,7 +80,7 @@ class ProfileAPIView(GenericAPIView):
         responses={status.HTTP_200_OK: schemas.profile_response},
     )
     def get(self, request, *args, **kwargs):
-        serializer = self.get_serializer(instance=self.get_queryset().get())
+        serializer = self.get_serializer(instance=self.get_object())
         return Response(serializer.data)
 
     @swagger_auto_schema(

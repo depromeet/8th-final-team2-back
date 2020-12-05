@@ -117,7 +117,6 @@ class ProfileSerializer(serializers.Serializer):
             }
             for icon in (ProfileIcon.objects.all().order_by("priority"))
         ]
-        print(icon_data)
 
         data = []
         for icon in icon_data:
