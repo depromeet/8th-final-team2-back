@@ -69,3 +69,10 @@ class PostLikeResponse(serializers.Serializer):
 
 
 post_like_response = openapi.Response("", PostLikeResponse)
+
+
+class PostDetailResponse(serializers.Serializer):
+    id = serializers.IntegerField(label="게시글 일련번호")
+
+
+post_detail_response = openapi.Response("", PostDetailResponse)

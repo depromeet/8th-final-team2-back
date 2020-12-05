@@ -1,7 +1,7 @@
 from django.db.models import Count
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
-from rest_framework.generics import CreateAPIView, GenericAPIView
+from rest_framework.generics import CreateAPIView, GenericAPIView, ListCreateAPIView
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
@@ -12,7 +12,7 @@ from apps.post.models import Comment, Post
 from . import pagination, schemas, serializers
 
 
-class PostViewSet(ModelViewSet):
+class PostAPIView(ListCreateAPIView):
     queryset = (
         Post.objects.all()
         .annotate(like_count=Count("like"))
@@ -23,13 +23,7 @@ class PostViewSet(ModelViewSet):
     )
     pagination_class = pagination.PostPagination
     filterset_class = PostFilterSet
-
-    def get_serializer_class(self):
-        if self.action == "retrieve":
-            return serializers.PostWithCommentSerializer
-        elif self.action == "list":
-            return serializers.PostListSerializer
-        return serializers.PostSerializer
+    serializer_class = serializers.PostListSerializer
 
     @swagger_auto_schema(
         operation_summary="게시글 리스트",
@@ -39,8 +33,8 @@ class PostViewSet(ModelViewSet):
         미션별로 보시고자 할 경우에는 url query로 mission id 값을 넘겨주시면 됩니다.
         """,
     )
-    def list(self, request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
     @swagger_auto_schema(
         operation_summary="게시글 생성",
@@ -51,8 +45,8 @@ class PostViewSet(ModelViewSet):
         """,
         request_body=schemas.post_request,
     )
-    def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
 
 
 class PostImageAPIView(CreateAPIView):

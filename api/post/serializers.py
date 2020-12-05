@@ -87,21 +87,6 @@ class PostLikeSerializer(serializers.Serializer):
         return attrs
 
 
-class PostSerializer(serializers.ModelSerializer):
-    mission = MissionSerializer(read_only=True)
-    user = UserSerializer(read_only=True)
-
-    class Meta:
-        model = Post
-        fields = [
-            "id",
-            "content",
-            "mission",
-            "created_at",
-            "user",
-        ]
-
-
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
@@ -152,25 +137,6 @@ class PostLikeSerializer(serializers.ModelSerializer):
         ]
 
 
-class PostWithCommentSerializer(serializers.ModelSerializer):
-    comments = PostCommentSerializer(many=True, read_only=True)
-    post_likes = PostLikeSerializer(many=True, read_only=True)
-    mission = MissionSerializer(read_only=True)
-    user = UserSerializer(read_only=True)
-
-    class Meta:
-        model = Post
-        fields = [
-            "id",
-            "user",
-            "post_likes",
-            "comments",
-            "created_at",
-            "like",
-            "mission",
-        ]
-
-
 class PostCreateSerializer(serializers.ModelSerializer):
     file_ids = serializers.ListField(child=serializers.IntegerField(), write_only=True)
 
@@ -192,28 +158,3 @@ class PostCreateSerializer(serializers.ModelSerializer):
         instance.media_contents.add(*contents)
 
         return instance
-
-
-class PostWithCountSerializer(serializers.ModelSerializer):
-    comment_count = serializers.SerializerMethodField()
-    like_count = serializers.SerializerMethodField()
-    user = UserSerializer(read_only=True)
-    mission = MissionSerializer(read_only=True)
-
-    def get_comment_count(self, obj):
-        return obj.comments.count()
-
-    def get_like_count(self, obj):
-        return obj.like.count()
-
-    class Meta:
-        model = Post
-        fields = [
-            "id",
-            "content",
-            "like_count",
-            "comment_count",
-            "created_at",
-            "user",
-            "mission",
-        ]
