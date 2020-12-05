@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     "apps.post",
     "apps.user",
     "apps.badge",
+    "apps.activity_log",
 ]
 
 MIDDLEWARE = [

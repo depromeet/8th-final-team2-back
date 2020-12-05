@@ -5,12 +5,13 @@ from rest_framework.generics import CreateAPIView, GenericAPIView, ListCreateAPI
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
-
+from apps.activity_log.utils import create_activity_log
 from api.post.filters import PostFilterSet
 from apps.post.models import Comment, Post
 
 from . import pagination, schemas, serializers
 
+from apps.activity_log.enums import EXP
 
 class PostAPIView(ListCreateAPIView):
     queryset = (

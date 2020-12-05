@@ -153,7 +153,6 @@ class PostCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         ids = validated_data.pop("file_ids")
         instance = super().create(validated_data)
-
         contents = PostImage.objects.filter(id__in=ids)
         instance.media_contents.add(*contents)
 
