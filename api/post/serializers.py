@@ -3,6 +3,7 @@ from rest_framework import serializers
 from api.user.serializers import UserSerializer
 from apps.user.models import User
 from apps.post.models import Comment, Post, PostImage
+from apps.mission.models import Mission
 
 
 class UserSerializer(serializers.Serializer):
@@ -18,14 +19,10 @@ class PostImageSerializer(serializers.ModelSerializer):
 
 
 class PostSerializer(serializers.ModelSerializer):
-    post_images = serializers.SerializerMethodField(read_only=True)
-    images = serializers.ListField(write_only=True)
+    images = serializers.SerializerMethodField(read_only=True)
     content = serializers.CharField()
     mission = serializers.CharField(source="mission.name")
     user = UserSerializer(read_only=True)
-    user = serializers.HiddenField(
-        default=serializers.CurrentUserDefault(), write_only=True
-    )
     is_like = serializers.SerializerMethodField(read_only=True)
     favorite_count = serializers.IntegerField(
         source="postlike_set.count", read_only=True
@@ -37,7 +34,6 @@ class PostSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "images",
-            "post_images",
             "content",
             "mission",
             "user",
@@ -47,7 +43,7 @@ class PostSerializer(serializers.ModelSerializer):
             "created_at",
         ]
 
-    def get_post_images(self, obj):
+    def get_images(self, obj):
         post_images = obj.postimage_set.order_by("priority")
         return [post_image.image.url for post_image in post_images]
 
@@ -57,11 +53,17 @@ class PostSerializer(serializers.ModelSerializer):
             return obj.postlike_set.filter(user=user).exists()
         return False
 
+
+class PostWriteSerializer(serializers.Serializer):
+    user = serializers.HiddenField(
+        default=serializers.CurrentUserDefault(), write_only=True
+    )
+    images = serializers.ListField(write_only=True, child=serializers.IntegerField())
+    content = serializers.CharField()
+    mission = serializers.PrimaryKeyRelatedField(queryset=Mission.objects.all())
+
     def create(self, validated_data):
         images = validated_data.pop("images")
-        mission = validated_data.pop("mission")
-
-        validated_data["mission_id"] = mission["name"]
 
         post = Post.objects.create(**validated_data)
         PostImage.objects.filter(id__in=images).update(post_id=post.id)

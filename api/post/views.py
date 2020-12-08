@@ -29,7 +29,11 @@ class PostAPIView(ListCreateAPIView):
     )
     pagination_class = pagination.PostPagination
     filterset_class = PostFilterSet
-    serializer_class = serializers.PostSerializer
+
+    def get_serializer_class(self):
+        if self.request.method == "POST":
+            return serializers.PostWriteSerializer
+        return serializers.PostSerializer
 
     @swagger_auto_schema(
         operation_summary="게시글 리스트",
