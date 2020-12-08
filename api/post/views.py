@@ -1,7 +1,13 @@
 from django.db.models import Count
+from django.shortcuts import get_object_or_404
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
-from rest_framework.generics import CreateAPIView, GenericAPIView, ListCreateAPIView
+from rest_framework.generics import (
+    CreateAPIView,
+    GenericAPIView,
+    ListCreateAPIView,
+    ListAPIView,
+)
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
@@ -23,7 +29,7 @@ class PostAPIView(ListCreateAPIView):
     )
     pagination_class = pagination.PostPagination
     filterset_class = PostFilterSet
-    serializer_class = serializers.PostListSerializer
+    serializer_class = serializers.PostSerializer
 
     @swagger_auto_schema(
         operation_summary="게시글 리스트",
@@ -85,11 +91,45 @@ class PostLikeAPIView(GenericAPIView):
         return Response(serializer.data)
 
 
-class CommentViewSet(ModelViewSet):
+class CommentAPIView(ListCreateAPIView):
     queryset = Comment.objects.all()
     serializer_class = serializers.CommentSerializer
 
-    def get_serializer_class(self):
-        if self.action == "create":
-            return serializers.CommentCreateSerializer
-        return serializers.CommentSerializer
+    def get_queryset(self):
+        pk = self.kwargs.get("pk")
+        return (
+            super()
+            .get_queryset()
+            .filter(post_id=pk)
+            .exclude(parent__isnull=False)
+            .values("id", "user_id", "content", "created_at")
+        )
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["post_id"] = self.kwargs.get("pk")
+        return context
+
+    @swagger_auto_schema(
+        operation_summary="댓글 리스트",
+        operation_description="""
+        댓글 리스트 API
+        ---
+        ID는 게시글 일련번호를 넣어주세요.
+        """,
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="댓글 생성",
+        operation_description="""
+        댓글 생성 API
+        ---
+        ID는 게시글 일련번호를 넣어주세요.
+        """,
+        request_body=schemas.comment_request,
+        responses={status.HTTP_200_OK: schemas.comment_create_response},
+    )
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)

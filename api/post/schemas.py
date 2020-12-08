@@ -47,6 +47,7 @@ class PostListResponse(serializers.Serializer):
     contnet = serializers.CharField(label="내용")
     mission = serializers.CharField(label="미션 명")
     user = PostUserResponse()
+    is_like = serializers.BooleanField(label="좋아요여부")
     favorite_count = serializers.IntegerField(label="좋아요 수")
     comment_count = serializers.IntegerField(label="댓글 수")
     created_at = serializers.DateTimeField(label="생성일")
@@ -76,3 +77,17 @@ class PostDetailResponse(serializers.Serializer):
 
 
 post_detail_response = openapi.Response("", PostDetailResponse)
+
+
+class CommentRequest(serializers.Serializer):
+    pass
+
+
+class CommentResponse(serializers.Serializer):
+    pass
+
+
+comment_request = CommentRequest
+
+
+comment_create_response = openapi.Response("", CommentResponse)

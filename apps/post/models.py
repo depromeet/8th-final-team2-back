@@ -64,7 +64,7 @@ class PostLike(BaseModel):
 class Comment(BaseModel):
     post = models.ForeignKey("post.Post", on_delete=models.CASCADE)
     user = models.ForeignKey("user.User", on_delete=models.CASCADE)
-    parent = models.ForeignKey("self", on_delete=models.CASCADE)
+    parent = models.ForeignKey("self", on_delete=models.CASCADE, null=True, blank=True)
     content = models.CharField("내용", max_length=100)
 
     class Meta:
